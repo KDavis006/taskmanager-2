@@ -1,14 +1,11 @@
-// let {Tasks} = require('../data')
 const  People = require('../models/Person');
 const Tasks = require('../models/Tasks');
 
-// Gets all the people
 const getAllUsers = async(req, res) => {
-//  res.json({success: true, data: Tasks})
 try {
   let answer = await People.find({})
   console.log(answer);
-  res.json(answer)
+  res.status(200).json({answer})
 } catch (err) {
 
 }
@@ -22,18 +19,25 @@ const getOneUser = async (req, res) => {
 }
 
 const getAllTasks = async (req, res) => {
+  try {
+  let answer = await Tasks.find({})
+  console.log(answer);
+  res.status(200).json({answer})
+} catch (err) {
 
+}
 }
 
 const getOneTask = async (req, res) => {
-
+  const {id: idPeople} = req.params
+  let answer = await Tasks.find({id: idPeople})
+  console.log(answer);
+  res.json(answer)
 }
 
-let length = People.length+1 
-// Post function for creating a new person
 const createPeople = async(req, res) => {
  try{
-  let answer = await People.create(req.body)
+  await People.create(req.body)
   let answer2 = await People.find({})
   console.log(answer2);
   res.json(answer2)
@@ -43,7 +47,14 @@ const createPeople = async(req, res) => {
 }
 
 const createTask = async(req, res) => {
-
+ try{
+  await Tasks.create(req.body)
+  let answer2 = await Tasks.find({})
+  console.log(answer2);
+  res.json(answer2)
+ } catch (err) {
+ 
+ }
 }
 
 // Put function
@@ -62,20 +73,32 @@ const updatePeople = async(req, res) => {
 } catch (err) {}
 }
 
-const updateTasks = (req, res) => {
-
+const updateTasks = async(req, res) => {
+  try {
+    console.log(req.body)
+  const {id: idTasks} = req.params
+  let answer = await Tasks.findOneAndUpdate({id: idTasks}, req.body, {
+    new: true, 
+    runValidators: true
+  })
+  readPeople()
+  console.log(answer)
+  res.json(answer)
+} catch (err) {}
 }
 
 // Delete people
 
 const deletePeople = async(req, res) => {
  const {id: idPeople} = req.params
- const task = await People.findOneAndDelete( {id: idPeople} )
- res.json(task)
+ const answer = await People.deleteOne( {id: idPeople} )
+ res.json(answer)
 }
 
 const deleteTask = async(req, res) => {
-
+  const {idTasks} = req.params
+ const answer = await Tasks.findOneAndDelete( {id: idTasks} )
+ res.json(answer)
 }
 
 module.exports = {createPeople, createTask, getOneUser, getAllUsers, getOneTask, getAllTasks, updatePeople,updateTasks, deletePeople, deleteTask}

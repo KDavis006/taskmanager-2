@@ -2,21 +2,22 @@ const result = document.querySelector(".result");
 
 const fetchPeople = async() => {
  try {
-  const { people } = await axios.get('../models/Person')
-  console.log(people)
-  const person = people.data.map((person) => {
-   return `
-   <h5>${person.name}</h5>
-   <p>${person.description}</p>
-   <s>
-   <button type="button" class="btn delete-btn" id=${person.id} onclick="done(${person.id}, ${person.done}, '${person.name}', '${person.description}')">Submit</button>
-   <button type="button" class="btn delete-btn" id=${person.id} onclick="remove(${person.id})">Delete</button>
-   <button type="button" class="btn edit-btn" onclick="editName('${person.name}','${person.description}', ${person.id})">Edit</button>
-   </s>`
-    })
-  result.innerHTML = person.join("")
+  await axios.get('/api/people')
+    .then((res) => {
+      console.log(res.data)
+      const person = res.data.answer.map((x) => {
+       return `
+        <h5>${x.name}</h5>
+        <p>${x.tasks}</p>
+        <button type="button" class="btn delete-btn" onclick="remove(${x.id})">Delete</button>
+        <button type="button" class="btn edit-btn" onclick="editName('${x.name}','${x.tasks}', ${x.id})">Edit</button>`
+      })
+
+         result.innerHTML = person.join("")
+    });
+ 
  } catch (error) {
-  formAlert.textContent = error.response.data.msg
+  // formAlert.textContent = error.response.data.msg
  }
 }
 fetchPeople()
@@ -25,24 +26,9 @@ fetchPeople()
 const btn = document.querySelector('.submit-btn')
 const input = document.querySelector('.form-input')
 const formAlert = document.querySelector('.form-alert')
-const inputDescription = document.querySelector('.form-input-description')
+const inputTasks = document.querySelector('.form-input-description')
 
-function done(id, status, name, description) {
-  if (status === false){
-  fetch(`/api/people/${id}`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, description: description, done: true})
-    })
-  } else if (status === true){
-    fetch(`/api/people/${id}`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, description: description, done: false}),
-    })
-  }
-  fetchPeople()
-}
+
 
 function remove(id) {
     fetch(`/api/people/${id}`, {
@@ -52,43 +38,66 @@ function remove(id) {
   fetchPeople()
 }
 
- let editmode = false
- let currentId = '';
-
-function editName(name, description,  id) {
+function editName(name, tasks,  id) {
   editmode = true
   input.value = name
-  inputDescription.value = description
+  inputTasks.value = tasks
   currentId = id;
 }
+
 
 btn.addEventListener('click', async(e) => {
  e.preventDefault()
  const nameValue = input.value
- const descriptionValue = inputDescription.value
- console.log(nameValue, descriptionValue)
+ const assignedTasks = inputTasks.value
 
  try{
   if(!editmode){
-  const { data } = await axios.post('/api/people', {name: nameValue, description: descriptionValue})
+  const { data } = await axios.post('/api/people', {name: nameValue, tasks: assignedTasks})
   const h5 = document.createElement('h5')
-  const p = document.createElement('p')
   h5.textContent = data.person
   result.appendChild(h5)
   fetchPeople()
   } else {
-    console.log('help')
+     let changes = change(input.value, inputTasks.value);
+     if(changes){
     fetch(`/api/people/${currentId}`, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: nameValue, description: descriptionValue, done: false})
-    })
-    fetchPeople()
-    editmode = false
-  }
+      body: JSON.stringify({name: nameValue, tasks: assignedTasks})
+  })
+
+  fetchPeople();
+  const {data} = await axios.get('/api/people');
+  console.log(data);
+} else {
+  fetchPeople();
+  inputTasks = 'That task does not exist'
+  return
+}
+}
  } catch(error) {
   console.log(error)
  }
+
  input.value = ''
- inputDescription.value = ''
+ inputTasks.value = ''
 })
+
+const change = async(personName, taskName) => {
+  const {data} = await axios.get('/api/people')
+  console.log(data)
+  data.answer.map((tasks) => {
+    if(taskName == tasks.name) {
+      fetch(`/api/tasks/${tasks.id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({assigned: personName})
+      })
+      return true
+    } else {
+      console.log('task does not exist', taskName)
+      return false
+    }
+  })
+}

@@ -7,15 +7,18 @@ const taskSchema = new mongoose.Schema({
   trim:true,
   maxLength:[20, "The name can't exceed 20 characters"]
  },
+ id: {
+  type: Number,
+ },
  description: {
   type: String,
   required:[true, 'Must provide description'],
   trim:true,
   maxLength:[200, "The name can't exceed 200 characters"]
  }, 
- assign: {
-  type:Boolean,
-  default:false
+ assigned: {
+  type:String,
+  default:''
  }
 }, {collection: "Tasks"})
 
