@@ -10,7 +10,8 @@ const fetchPeople = async() => {
         <h5>${x.name}</h5>
         <p>${x.tasks}</p>
         <button type="button" class="btn delete-btn" onclick="remove(${x.id})">Delete</button>
-        <button type="button" class="btn edit-btn" onclick="editName('${x.name}','${x.tasks}', ${x.id})">Edit</button>`
+        <button type="button" class="btn edit-btn" onclick="editName('${x.name}','${x.tasks}', ${x.id})">Edit</button>
+        <a href="./tasks.html"><button type="button" class="btn assign-btn">Assign/Remove Tasks</button>`
       })
 
          result.innerHTML = person.join("")
