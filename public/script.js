@@ -4,7 +4,6 @@ const fetchPeople = async() => {
  try {
   await axios.get('/api/people')
     .then((res) => {
-      console.log(res.data)
       const person = res.data.answer.map((x) => {
        return `
         <h5>${x.name}</h5>
@@ -70,7 +69,6 @@ btn.addEventListener('click', async(e) => {
 
   fetchPeople();
   const {data} = await axios.get('/api/people');
-  console.log(data);
 } else {
   fetchPeople();
   inputTasks = 'That task does not exist'
@@ -85,20 +83,20 @@ btn.addEventListener('click', async(e) => {
  inputTasks.value = ''
 })
 
-const change = async(personName, taskName) => {
-  const {data} = await axios.get('/api/people')
-  console.log(data)
-  data.answer.map((tasks) => {
-    if(taskName == tasks.name) {
-      fetch(`/api/tasks/${tasks.id}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({assigned: personName})
-      })
-      return true
-    } else {
-      console.log('task does not exist', taskName)
-      return false
-    }
-  })
-}
+// const change = async(personName, taskName) => {
+//   const {data} = await axios.get('/api/people')
+//   console.log(data)
+//   data.answer.map((tasks) => {
+//     if(taskName == tasks.name) {
+//       fetch(`/api/tasks/${tasks.id}`, {
+//         method: 'PUT',
+//         headers: {'Content-Type': 'application/json'},
+//         body: JSON.stringify({assigned: personName})
+//       })
+//       return true
+//     } else {
+//       console.log('task does not exist', taskName)
+//       return false
+//     }
+//   })
+// }
