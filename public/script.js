@@ -7,10 +7,10 @@ const fetchPeople = async() => {
       const person = res.data.answer.map((x) => {
        return `
         <h5>${x.name}</h5>
-        <p>${x.tasks}</p>
+        <p>AGE: ${x.age}</p>
         <button type="button" class="btn delete-btn" onclick="remove(${x.id})">Delete</button>
-        <button type="button" class="btn edit-btn" onclick="editName('${x.name}','${x.tasks}', ${x.id})">Edit</button>
-        <a href="./tasks.html"><button type="button" class="btn assign-btn">Assign/Remove Tasks</button>`
+        <button type="button" class="btn edit-btn" onclick="editName('${x.name}',${x.age}, ${x.id})">Edit</button>
+        <a href="./tasks.html"><button type="button" class="btn assign-btn">Assign/Remove Tasks</button></a>`
       })
 
          result.innerHTML = person.join("")
@@ -26,7 +26,7 @@ fetchPeople()
 const btn = document.querySelector('.submit-btn')
 const input = document.querySelector('.form-input')
 const formAlert = document.querySelector('.form-alert')
-const inputTasks = document.querySelector('.form-input-description')
+const ageInput = document.querySelector('.form-input-description')
 
 
 
@@ -38,10 +38,10 @@ function remove(id) {
   fetchPeople()
 }
 
-function editName(name, tasks,  id) {
+function editName(name, age,  id) {
   editmode = true
   input.value = name
-  inputTasks.value = tasks
+  ageInput.value = age
   currentId = id;
 }
 
@@ -49,38 +49,30 @@ function editName(name, tasks,  id) {
 btn.addEventListener('click', async(e) => {
  e.preventDefault()
  const nameValue = input.value
- const assignedTasks = inputTasks.value
+ const ageInputs = ageInput.value
 
  try{
   if(!editmode){
-  const { data } = await axios.post('/api/people', {name: nameValue, tasks: assignedTasks})
+  const { data } = await axios.post('/api/people', {name: nameValue, age: ageInputs})
   const h5 = document.createElement('h5')
   h5.textContent = data.person
   result.appendChild(h5)
   fetchPeople()
   } else {
-     let changes = change(input.value, inputTasks.value);
-     if(changes){
     fetch(`/api/people/${currentId}`, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: nameValue, tasks: assignedTasks})
+      body: JSON.stringify({name: nameValue, age: ageInputs})
   })
 
   fetchPeople();
-  const {data} = await axios.get('/api/people');
-} else {
-  fetchPeople();
-  inputTasks = 'That task does not exist'
-  return
-}
 }
  } catch(error) {
   console.log(error)
  }
 
  input.value = ''
- inputTasks.value = ''
+ ageInput.value = ''
 })
 
 // const change = async(personName, taskName) => {

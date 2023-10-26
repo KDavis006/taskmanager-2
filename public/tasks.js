@@ -2,38 +2,36 @@ const result = document.querySelector(".result");
 
 const fetchPeople = async() => {
  try {
-  const people = await axios.get('/api/people');
+  let {data} = await axios.get('/api/people')
+  let inputs = document.getElementById('people').innerHTML = data.answer.map(x=>{
+          return `<option value="people">${x.name}</option>`
+         })
+
   let taskIDs = [];
   await axios.get('/api/tasks')
     .then(async(res) => {
       const tasks = res.data.answer.map((x) => {
         taskIDs.push(x.id);
-        // console.log(taskIDs);
+        // if(taskEditmode == true){
+
+        // } else {
        return `
         <h5>${x.name}</h5>
         <p>${x.description}</p>
+        <h4>Assigned To: None</h4> 
         <button type="button" class="btn delete-btn" onclick="remove(${x.id})">Delete</button>
         <button type="button" class="btn edit-btn" onclick="editName('${x.name}','${x.description}', ${x.id})">Edit</button>
-        <select name="people" class="select-input" id="task${x.id}"></select>
         `
+        // }
       })
          result.innerHTML = tasks.join("")
-         let {data} = await axios.get('/api/people')
-         console.log(data);
-         let inputs = data.answer.map(x=>{
-          return `<option value="people">${x.name}</option>`
-         })
-         console.log(inputs)
-        //  const inputSelect = document.querySelector('.select-input')
+
          for(let i=0; i < taskIDs.length; i++){
           let input = document.querySelector(`#task${taskIDs[i]}`)
           input.innerHTML = inputs.join('')
          }
     });
-    console.log('test')
-    people()
  } catch (error) {
-  // formAlert.textContent = error.response.data.msg
  }
 }
 fetchPeople()
@@ -45,20 +43,6 @@ const formAlert = document.querySelector('.form-alert')
 const inputTasks = document.querySelector('.form-input-description')
 
 
-
-let options = ``
-
-async function people() {
-  const inputSelect = document.querySelector('.select-input')
-  console.log(inputSelect)
-  let allPeople = await axios.get('/api/people')
-  console.log(allPeople);
-    // .then(async(res) => {
-    //   for(let i = 0; i < res.data.answer.length; i++) {
-    //     inputSelect.innerHTML += `<option value="people">${people.data.answer[i].name}</option>`
-    //   }
-    // })
-}
 
 
 
@@ -96,9 +80,7 @@ btn.addEventListener('click', async(e) => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({name: nameValue, description: assignedTasks})
   })
-
   fetchPeople();
-  const {data} = await axios.get('/api/tasks');
 }
  } catch(error) {
   console.log(error)
